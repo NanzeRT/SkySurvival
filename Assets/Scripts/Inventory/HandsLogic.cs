@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 namespace InventorySystem
@@ -12,6 +13,8 @@ namespace InventorySystem
         private CellBehaviour[] rightBs;
         [SerializeField]
         private CellBehaviour[] leftBs;
+        [SerializeField]
+        private Slider slider;
 
         private static HandCell selected;
 
@@ -20,6 +23,8 @@ namespace InventorySystem
 
         private void Start()
         {
+            right.SetHandler(this);
+            left.SetHandler(this);
             right.Link(left);
             foreach (var b in rightBs)
             {
@@ -34,6 +39,18 @@ namespace InventorySystem
 
             if (selected is null)
                 left.Select();
+        }
+
+        public void UpdateSlider()
+        {
+            slider.value = right.Amount / (right.Amount + left.Amount + .0001f);
+        }
+
+        public void OnSliderChange()
+        {
+            int summary = right.Amount + left.Amount;
+            left.TakeFromCell(right);
+            left.GiveToCell(right, Mathf.CeilToInt(summary * slider.value) - right.Amount);
         }
 
         public static void Select(HandCell cell)
@@ -51,12 +68,15 @@ namespace InventorySystem
 
     public abstract class HandCell : Cell
     {
-        private HandCell pair;
+        protected HandsLogic handler;
+        protected HandCell pair;
         public void Link(HandCell cell)
         {
             pair = cell;
             cell.pair = this;
         }
+
+        public void SetHandler(HandsLogic h) => handler = h;
 
         public override void OnLeftClick()
         {
@@ -82,25 +102,42 @@ namespace InventorySystem
         public abstract void InteractWithCell(Cell cell);
     }
 
-    public class RightHandCell : HandCell
-    {
-        public override void InteractWithCell(Cell cell)
-        {
-            if (item is null && cell.Item != null)
-                TakeFromCell(cell, (cell.Item.Amount + 1) / 2);
-            else
-                GiveToCell(cell);
-        }
-    }
-
     public class LeftHandCell : HandCell
     {
         public override void InteractWithCell(Cell cell)
         {
-            if (item is null && cell.Item != null)
+            if ((item is null || cell.IsFull()) && pair.CanTake(cell.Item))
                 TakeFromCell(cell);
             else
+                if (!cell.CanTake(item) && pair.CanTake(cell.Item))
+                    SwapItems(cell);
+                else
+                    GiveToCell(cell);
+            
+            handler.UpdateSlider();
+        }
+    }
+
+    public class RightHandCell : HandCell
+    {
+        public override void InteractWithCell(Cell cell)
+        {
+            if (item is null && pair.Item is null && cell.Item != null)
+                TakeFromCell(cell, (cell.Item.Amount + 1) / 2);
+            
+            else if (item != null)
+            {
+                int amount = this.item.Amount;
                 GiveToCell(cell);
+                TakeFromCell(pair, amount - (this.item is null? 0 : this.item.Amount));
+            }
+            else
+            {
+                TakeFromCell(pair, 1);
+                GiveToCell(cell);
+            }
+
+            handler.UpdateSlider();
         }
     }
 }

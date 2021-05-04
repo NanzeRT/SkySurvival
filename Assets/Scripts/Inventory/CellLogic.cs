@@ -12,6 +12,7 @@ namespace InventorySystem
         protected ItemBase item;
 
         public ItemBase Item => item;
+        public int Amount => item is null? 0 : item.Amount;
 
         protected List<CellBehaviour> activeBehaviors = new List<CellBehaviour>();
         public void AddBehaviour(CellBehaviour bh) => activeBehaviors.Add(bh);
@@ -152,8 +153,19 @@ namespace InventorySystem
             RefreshAmount();
         }
 
-        public virtual bool CanTake(ItemBase it) => item is null || item.GetType() == it.GetType();
+        public virtual void SwapItems(Cell cell)
+        {
+            if (!CanSwap(cell.item) || !cell.CanSwap(item))
+                return;
+            ItemBase it = item;
+            SetItem(cell.item);
+            cell.SetItem(it);
+        }
+
+        public virtual bool CanTake(ItemBase it) => it != null && (item is null || item.GetType() == it.GetType());
         public virtual bool CanGive() => item != null;
+        public virtual bool CanSwap(ItemBase it) => true;
+        public virtual bool IsFull() => item != null && item.IsFull();
 
         public virtual void OnLeftClick()
         {

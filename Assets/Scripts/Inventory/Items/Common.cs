@@ -10,5 +10,6 @@ namespace InventoryItems
         public StickI(int a) : base(a) { }
         public override string Name => "Stick";
         public override string SpriteName => "Stick";
+        public override int MaxCap => 57;
     }
 }
