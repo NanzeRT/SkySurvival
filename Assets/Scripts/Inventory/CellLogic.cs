@@ -11,67 +11,24 @@ namespace InventorySystem
     {
         protected ItemBase item;
 
-        public ItemBase Item => item;
+        public virtual ItemBase Item => item;
         public int Amount => item is null? 0 : item.Amount;
+        protected List<InventoryLogic> inventories = new List<InventoryLogic>();
+
+        public void AddInventory(InventoryLogic inv) => inventories.Add(inv);
+        public void RemoveInventory(InventoryLogic inv) => inventories.Remove(inv);
 
         protected List<CellBehaviour> activeBehaviors = new List<CellBehaviour>();
-        public void AddBehaviour(CellBehaviour bh) => activeBehaviors.Add(bh);
-        /*
-                // trying to give item to other cell
-                public virtual bool GiveItem(Cell cell)
-                {
-                    if (item is null) return false;
-                    if (cell.TrySetItem(item))
-                    {
-                        RemoveItem();
-                        return true;
-                    }
-                    return false;
-                }
+        public void AddBehaviour(CellBehaviour bh) 
+        {
+            activeBehaviors.Add(bh);
+            bh.SetItem(item);
+        }
+        public void RemoveBehaviour(CellBehaviour bh) => activeBehaviors.Remove(bh);
 
-                // try set item in this cell
-                protected virtual bool TrySetItem(ItemBase it)
-                {
-                    if (item is null)
-                    {
-                        SetItem(it);
-                        return true;
-                    }
-                    return false;
-                }
-        */
         public virtual void PickUpItem(ItemBase it) => TakeFromItem(it);
-        /*
-                public virtual ItemBase SplitTtem(int withdraw)
-                {
-                    ItemBase it = item.Split(withdraw);
-                    RefreshAmount();
-                    return item;
-                }
-
-                // trying to take item from other cell
-                public virtual bool TakeItem(Cell cell)
-                {
-                    if (item is null)
-                    {
-                        var it = cell.TryPullItem();
-                        if (it is null) return false;
-                        item = it;
-                        return true;
-                    }
-                    return false;
-                }
-
-                // try get item from this cell and remove it
-                public virtual ItemBase TryPullItem()
-                {
-                    if (item is null) return null;
-                    var it = item;
-                    RemoveItem();
-                    return it;
-                }
-        */
-        protected virtual void RefreshAmount()
+        
+        public virtual void RefreshAmount()
         {
             if (item.Amount == 0)
             {
@@ -104,6 +61,20 @@ namespace InventorySystem
             item = null;
         }
 
+        protected virtual void Destroy()
+        {
+            foreach (var inv in inventories.ToArray())
+            {
+                inv.RemoveCell(this);
+            }
+            foreach (var bh in activeBehaviors.ToArray())
+            {
+                bh.Destroy();
+            }
+        }
+
+        public void Trash() => RemoveItem();
+
         public virtual void TakeFromCell(Cell cell)
         {
             if (!cell.CanGive()) return;
@@ -135,7 +106,7 @@ namespace InventorySystem
         {
             if (!CanTake(it)) return;
 
-            if (item is null)
+            if (IsEmpty())
                 SetItem((ItemBase)Activator.CreateInstance(it.GetType()));
 
             item.TakeFromItem(it);
@@ -146,7 +117,7 @@ namespace InventorySystem
         {
             if (!CanTake(it)) return;
 
-            if (item is null)
+            if (IsEmpty())
                 SetItem((ItemBase)Activator.CreateInstance(it.GetType()));
 
             item.TakeFromItem(it, amount);
@@ -162,10 +133,11 @@ namespace InventorySystem
             cell.SetItem(it);
         }
 
-        public virtual bool CanTake(ItemBase it) => it != null && (item is null || item.GetType() == it.GetType());
-        public virtual bool CanGive() => item != null;
+        public virtual bool CanTake(ItemBase it) => IsEmpty() || item.GetType() == it?.GetType();
+        public virtual bool CanGive() => !IsEmpty();
         public virtual bool CanSwap(ItemBase it) => true;
-        public virtual bool IsFull() => item != null && item.IsFull();
+        public virtual bool IsFull() => item?.IsFull() == true;
+        public virtual bool IsEmpty()  => item is null;
 
         public virtual void OnLeftClick()
         {

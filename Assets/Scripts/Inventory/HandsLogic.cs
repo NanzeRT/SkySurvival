@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using InventoryItems;
 
 
 namespace InventorySystem
 {
-    public class HandsLogic : MonoBehaviour
+    public class HandsLogic : MonoBehaviour, ICellHandler
     {
         [SerializeField]
         private CellBehaviour[] rightBs;
@@ -15,6 +16,8 @@ namespace InventorySystem
         private CellBehaviour[] leftBs;
         [SerializeField]
         private Slider slider;
+
+        public List<Cell> Cells => new List<Cell> { left, right };
 
         private static HandCell selected;
 
@@ -76,6 +79,12 @@ namespace InventorySystem
             cell.pair = this;
         }
 
+        public ItemBase HandItem => item ?? pair.item;
+
+        public override bool CanTake(ItemBase it) => HandItem is null || it?.GetType() == HandItem.GetType();
+
+        public bool CanTakeSingle(ItemBase it) => base.CanTake(it);
+
         public void SetHandler(HandsLogic h) => handler = h;
 
         public override void OnLeftClick()
@@ -106,14 +115,13 @@ namespace InventorySystem
     {
         public override void InteractWithCell(Cell cell)
         {
-            if ((item is null || cell.IsFull()) && pair.CanTake(cell.Item))
+            if ((item is null || cell.IsFull()) && CanTake(cell.Item))
                 TakeFromCell(cell);
+            else if (!cell.CanTake(item) && pair.CanTakeSingle(cell.Item))
+                SwapItems(cell);
             else
-                if (!cell.CanTake(item) && pair.CanTake(cell.Item))
-                    SwapItems(cell);
-                else
-                    GiveToCell(cell);
-            
+                GiveToCell(cell);
+
             handler.UpdateSlider();
         }
     }
@@ -124,12 +132,13 @@ namespace InventorySystem
         {
             if (item is null && pair.Item is null && cell.Item != null)
                 TakeFromCell(cell, (cell.Item.Amount + 1) / 2);
-            
+            else if (!cell.CanTake(HandItem))
+                return;
             else if (item != null)
             {
                 int amount = this.item.Amount;
                 GiveToCell(cell);
-                TakeFromCell(pair, amount - (this.item is null? 0 : this.item.Amount));
+                TakeFromCell(pair, amount - (this.item is null ? 0 : this.item.Amount));
             }
             else
             {

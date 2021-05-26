@@ -5,44 +5,54 @@ using InventoryItems;
 
 namespace InventorySystem
 {
-    public class InventoryLogic : MonoBehaviour
+    public class InventoryLogic : MonoCellHandler
     {
         [SerializeField]
         private InventoryBehaviour[] behaviours;
         [SerializeField]
         private int cellsCount = 1;
         private List<Cell> cells = new List<Cell>();
+        public override List<Cell> Cells => cells;
 
-        void Start()
+        protected virtual void Start()
         {
             for (int i=0; i<cellsCount; i++)
             {
-                AddCell();
+                AddNewCell();
             }
         }
 
-        private void AddCell()
+        private void AddNewCell()
         {
             Cell cell = new Cell();
+            AddCell(cell);
+        }
+
+        protected void AddCell(Cell cell)
+        {
             cells.Add(cell);
             foreach (var behaviour in behaviours)
             {
                 behaviour.AddCell(cell);
             }
+            cell.AddInventory(this);
         }
 
-        public virtual void PickUpItem(ItemBase item)
+        public void RemoveCell(Cell cell)
         {
-            foreach (Cell cell in cells.FindAll(c => c.Item != null && c.Item.GetType() == item.GetType()))
+            cells.Remove(cell);
+            foreach (var behaviour in behaviours)
             {
-                cell.PickUpItem(item);
-                if (item.Amount == 0) return;
+                behaviour.RemoveCell(cell);
             }
-            foreach (Cell cell in cells)
-            {
-                cell.PickUpItem(item);
-                if (item.Amount == 0) return;
-            }
+            cell.RemoveInventory(this);
         }
+
+        public virtual void Trash(Cell cell)
+        {
+            cell.Trash();
+        }
+
+        public virtual void Trash(ItemBase item) { }
     }
 }

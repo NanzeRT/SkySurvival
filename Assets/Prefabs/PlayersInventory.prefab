@@ -221,6 +221,7 @@ MonoBehaviour:
   - {fileID: 7528263250483569117}
   leftBs:
   - {fileID: 3159277073685611664}
+  slider: {fileID: 5163228576495250518}
 --- !u!1 &5163228575697834324
 GameObject:
   m_ObjectHideFlags: 0
@@ -245,7 +246,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5163228575697834324}
-  m_LocalRotation: {x: -0, y: -9.3132224e-10, z: 4.6566112e-10, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.0000017881393}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -602,7 +603,19 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5163228575549853130}
+        m_TargetAssemblyTypeName: InventorySystem.HandsLogic, Assembly-CSharp
+        m_MethodName: OnSliderChange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5163228576584285437
 GameObject:
   m_ObjectHideFlags: 0

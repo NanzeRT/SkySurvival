@@ -2,7 +2,12 @@ fileFormatVersion: 2
 guid: a0e3d007bf91ac3ae916247b704fbbae
 TextureImporter:
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:GameObject
+      assembly: UnityEngine.CoreModule
+      name: Wheat
+    second: {fileID: 690191054487371096, guid: 1f819f61e80f11d918333c75ef2daf77, type: 3}
   serializedVersion: 11
   mipmaps:
     mipMapMode: 0
@@ -37,7 +42,7 @@ TextureImporter:
     mipBias: -100
     wrapU: 1
     wrapV: 1
-    wrapW: -1
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -46,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 0.5
+  spritePixelsToUnits: 50
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -115,6 +120,6 @@ TextureImporter:
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
-  userData: 
+  userData: '{"mode":0,"transparentDetail":1.0,"transparentAlphaTolerance":0,"opaqueDetail":1.0,"opaqueAlphaTolerance":10,"detectHoles":true,"edgeSmoothing":0.0,"useNonZero":false,"transparentShaderName":"Unlit/Transparent","opaqueShaderName":"Unlit/Texture","thickness":0.05000000074505806}'
   assetBundleName: 
   assetBundleVariant: 

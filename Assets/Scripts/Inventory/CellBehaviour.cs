@@ -7,25 +7,27 @@ using InventoryItems;
 
 namespace InventorySystem
 {
-    public class CellBehaviour : MonoBehaviour, IPointerClickHandler
+    public class CellBehaviour : MonoBehaviour, IPointerClickHandler, ICellHandler
     {
-        private Cell cell;
+        protected Cell cell;
+        public Cell Cell => cell;
+        public List<Cell> Cells => new List<Cell> { cell };
         public void SetCell(Cell c) => cell = c;
         [SerializeField]
         private Image background;
         [SerializeField]
         private Image itemImage;
         [SerializeField]
-        private Sprite blankItem;
+        protected Sprite blankItem;
         [SerializeField]
         private Text amountText;
 
-        void Start()
+        protected virtual void Start()
         {
             //itemImage.sprite = blankItem;
         }
 
-        public void OnPointerClick(PointerEventData eventData)
+        public virtual void OnPointerClick(PointerEventData eventData)
         {
             switch (eventData.button)
             {
@@ -40,21 +42,22 @@ namespace InventorySystem
 
         public void SetItem(ItemBase item)
         {
+            if (item is null) return;
             SetAmount(item.Amount);
             SetSprite(item.GetSprite());
         }
 
-        public void SetSprite(Sprite sprite)
+        public virtual void SetSprite(Sprite sprite)
         {
             itemImage.sprite = sprite;
         }
 
-        public void SetBackground(Sprite sprite)
+        public virtual void SetBackground(Sprite sprite)
         {
             background.sprite = sprite;
         }
 
-        public void SetAmount(int amount)
+        public virtual void SetAmount(int amount)
         {
             if (amount != 1)
             {
@@ -68,10 +71,16 @@ namespace InventorySystem
 
         public void SetAmount(ItemBase item) => SetAmount(item.Amount);
 
-        public void Reset()
+        public virtual void Reset()
         {
             itemImage.sprite = blankItem;
             amountText.text = "";
+        }
+
+        public void Destroy()
+        {
+            cell.RemoveBehaviour(this);
+            Destroy(gameObject);
         }
     }
 }

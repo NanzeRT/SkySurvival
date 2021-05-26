@@ -7,7 +7,7 @@ using InventoryItems;
 
 public class ItemGiver : MonoBehaviour, IPointerClickHandler
 {
-    public InventoryLogic inventory;
+    public MonoCellHandler inventory;
     protected virtual ItemBase GetItem => new ItemBase(new System.Random().Next(20));
     public void OnPointerClick(PointerEventData eventData)
     {

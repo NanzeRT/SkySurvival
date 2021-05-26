@@ -12,7 +12,7 @@ namespace InventoryItems
         private int amount = 0;
         public int Amount => amount;
         public virtual int MaxCap => 99;
-        public ItemBase Split(int withdraw)
+        protected ItemBase Split(int withdraw)
         {
             if (withdraw >= amount)
             {

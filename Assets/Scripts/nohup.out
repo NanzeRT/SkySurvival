@@ -1,0 +1,1 @@
+kf.coreaddons: Expected JSON property "X-KDE-Show-In-Submenu" to be a single string. but it is a bool
